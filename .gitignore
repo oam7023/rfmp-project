@@ -1,0 +1,13 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Compiled C client
+*.exe
+*.o
+*.obj
+
+# Editor/IDE files
+.vscode/
+.idea/
