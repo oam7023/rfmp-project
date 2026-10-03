@@ -135,6 +135,13 @@ def main():
 
         reply = recv_packet(client_sock)
         print("Server:", reply)
+        
+        if choice == "7":
+            data = input("Enter data to write: ")
+            send_packet(client_sock, "DP," + data)
+
+            reply = recv_packet(client_sock)
+            print("Server:", reply)
 
 
     client_sock.close()

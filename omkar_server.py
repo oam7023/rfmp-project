@@ -92,8 +92,31 @@ def handle_client(client_sock):
         if packet_type == "CM":
             command_type = parts[1]
             command = parts[2]
+            if command_type == "openWrite":
+                filename = command
 
-            if command_type == "prompt":
+                try:
+                    file = open(filename, "w")
+                    send_packet(client_sock, "SC,File opened for writing")
+
+                    data_packet = recv_packet(client_sock)
+
+                    data_parts = data_packet.split(",", 1)
+
+                    if data_parts[0] == "DP":
+                        data = data_parts[1]
+                        file.write(data)
+                        file.close()
+
+                        send_packet(client_sock, "SC,Data written to file")
+                    else:
+                        file.close()
+                        send_packet(client_sock, "EE,3,Expected data packet")
+
+                except Exception:
+                    send_packet(client_sock, "EE,3,Cannot open file")
+
+            elif command_type == "prompt":
                 try:
                     result = os.system(command)
 
