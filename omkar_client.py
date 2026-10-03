@@ -93,6 +93,11 @@ def main():
         print("6. openRead")
         print("7. openWrite")
         print("8. exit")
+        print("9. dir")
+        print("10. whoami")
+        print("11. hostname")
+        print("12. ipconfig")
+        print("13. echo")
 
         choice = input("Enter your choice: ")
 
@@ -127,6 +132,22 @@ def main():
             filename = input("Enter file name: ")
             packet = "CM,openWrite," + filename
 
+        elif choice == "9":
+            packet = "CM,prompt,dir"
+
+        elif choice == "10":
+            packet = "CM,prompt,whoami"
+
+        elif choice == "11":
+            packet = "CM,prompt,hostname"
+
+        elif choice == "12":
+            packet = "CM,prompt,ipconfig"
+
+        elif choice == "13":
+            command = input("Enter message: ")
+            packet = "CM,prompt,echo " + command
+
         else:
             print("Invalid choice")
             continue
@@ -134,7 +155,7 @@ def main():
         send_packet(client_sock, packet)
 
         reply = recv_packet(client_sock)
-        
+
         if reply.startswith("DP,"):
             data = reply.split(",", 1)[1]
             print("File contents:")
