@@ -121,6 +121,7 @@ def main():
         choice = input("Enter your choice: ")
 
         if choice == "8":
+            send_packet(client_sock, "End")
             break
 
         if choice == "1":
