@@ -134,8 +134,14 @@ def main():
         send_packet(client_sock, packet)
 
         reply = recv_packet(client_sock)
-        print("Server:", reply)
         
+        if reply.startswith("DP,"):
+            data = reply.split(",", 1)[1]
+            print("File contents:")
+            print(data)
+        else:
+            print("Server:", reply)
+
         if choice == "7":
             data = input("Enter data to write: ")
             send_packet(client_sock, "DP," + data)

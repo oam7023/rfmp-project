@@ -92,7 +92,22 @@ def handle_client(client_sock):
         if packet_type == "CM":
             command_type = parts[1]
             command = parts[2]
-            if command_type == "openWrite":
+
+            if command_type == "openRead":
+                filename = command
+
+                try:
+                    file = open(filename, "r")
+                    data = file.read()
+                    file.close()
+
+                    send_packet(client_sock, "DP," + data)
+
+                except Exception:
+                    send_packet(client_sock, "EE,4,Cannot read file")
+
+
+            elif command_type == "openWrite":
                 filename = command
 
                 try:
