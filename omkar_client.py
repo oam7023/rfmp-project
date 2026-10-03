@@ -5,6 +5,7 @@ RFMP client - Setup Phase.
 import socket
 import os
 import base64
+from Crypto.Cipher import AES
 
 import rsa  # pip install rsa
 
@@ -34,6 +35,23 @@ def encode_bytes(data):
 def decode_bytes(text):
     # turns the text string back into raw bytes
     return base64.b64decode(text.encode())
+
+def encrypt_data(text, key):
+    cipher = AES.new(key, AES.MODE_EAX)
+    encrypted = cipher.encrypt(text.encode())
+    data = cipher.nonce + encrypted
+    return encode_bytes(data)
+
+
+def decrypt_data(text, key):
+    data = decode_bytes(text)
+    nonce = data[:16]
+    encrypted = data[16:]
+
+    cipher = AES.new(key, AES.MODE_EAX)
+    decrypted = cipher.decrypt(encrypted)
+
+    return decrypted.decode()
 
 def main():
     answer = input("Require secure communication? (y/n): ")
@@ -157,10 +175,13 @@ def main():
         reply = recv_packet(client_sock)
 
         if reply.startswith("DP,"):
-            data = reply.split(",", 1)[1]
+            encrypted_data = reply.split(",", 1)[1]
+            data = decrypt_data(encrypted_data, session_key)
+        
+
             print("File contents:")
             print(data)
-            
+
         elif reply.startswith("EE,"):
             error_parts = reply.split(",", 2)
 
@@ -175,7 +196,9 @@ def main():
 
         if choice == "7":
             data = input("Enter data to write: ")
-            send_packet(client_sock, "DP," + data)
+            encrypted_data = encrypt_data(data, session_key)
+
+            send_packet(client_sock, "DP," + encrypted_data)
 
             reply = recv_packet(client_sock)
             print("Server:", reply)

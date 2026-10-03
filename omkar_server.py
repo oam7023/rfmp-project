@@ -6,6 +6,7 @@ import socket
 import threading
 import base64
 import os
+from Crypto.Cipher import AES
 
 import rsa  # pip install rsa
 
@@ -35,6 +36,23 @@ def encode_bytes(data):
 def decode_bytes(text):
     # turn the text string back into raw bytes
     return base64.b64decode(text.encode())
+
+def encrypt_data(text, key):
+    cipher = AES.new(key, AES.MODE_EAX)
+    encrypted = cipher.encrypt(text.encode())
+    data = cipher.nonce + encrypted
+    return encode_bytes(data)
+
+
+def decrypt_data(text, key):
+    data = decode_bytes(text)
+    nonce = data[:16]
+    encrypted = data[16:]
+
+    cipher = AES.new(key, AES.MODE_EAX)
+    decrypted = cipher.decrypt(encrypted)
+
+    return decrypted.decode()
 
 def handle_client(client_sock):
     print("New connection")
@@ -101,7 +119,9 @@ def handle_client(client_sock):
                     data = file.read()
                     file.close()
 
-                    send_packet(client_sock, "DP," + data)
+                    encrypted_data = encrypt_data(data, session_key)
+
+                    send_packet(client_sock, "DP," + encrypted_data)
 
                 except Exception:
                     send_packet(client_sock, "EE,4,Cannot read file")
@@ -119,7 +139,7 @@ def handle_client(client_sock):
                     data_parts = data_packet.split(",", 1)
 
                     if data_parts[0] == "DP":
-                        data = data_parts[1]
+                        data = decrypt_data(data_parts[1], session_key)
                         file.write(data)
                         file.close()
 
