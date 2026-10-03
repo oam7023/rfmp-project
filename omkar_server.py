@@ -104,6 +104,8 @@ def handle_client(client_sock):
 
         if packet == "":
             break
+        if packet == "End":
+            break
 
         parts = packet.split(",", 2)
         packet_type = parts[0]
