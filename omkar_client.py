@@ -45,10 +45,11 @@ def encrypt_data(text, key):
 
 def decrypt_data(text, key):
     data = decode_bytes(text)
+
     nonce = data[:16]
     encrypted = data[16:]
 
-    cipher = AES.new(key, AES.MODE_EAX)
+    cipher = AES.new(key, AES.MODE_EAX, nonce=nonce)
     decrypted = cipher.decrypt(encrypted)
 
     return decrypted.decode()
@@ -175,9 +176,12 @@ def main():
         reply = recv_packet(client_sock)
 
         if reply.startswith("DP,"):
-            encrypted_data = reply.split(",", 1)[1]
-            data = decrypt_data(encrypted_data, session_key)
-        
+            received_data = reply.split(",", 1)[1]
+
+            if secure:
+                data = decrypt_data(received_data, session_key)
+            else:
+                data = received_data
 
             print("File contents:")
             print(data)
@@ -196,9 +200,12 @@ def main():
 
         if choice == "7":
             data = input("Enter data to write: ")
-            encrypted_data = encrypt_data(data, session_key)
 
-            send_packet(client_sock, "DP," + encrypted_data)
+            if secure:
+                encrypted_data = encrypt_data(data, session_key)
+                send_packet(client_sock, "DP," + encrypted_data)
+            else:
+                send_packet(client_sock, "DP," + data)
 
             reply = recv_packet(client_sock)
             print("Server:", reply)

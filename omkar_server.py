@@ -46,10 +46,11 @@ def encrypt_data(text, key):
 
 def decrypt_data(text, key):
     data = decode_bytes(text)
+
     nonce = data[:16]
     encrypted = data[16:]
 
-    cipher = AES.new(key, AES.MODE_EAX)
+    cipher = AES.new(key, AES.MODE_EAX, nonce=nonce)
     decrypted = cipher.decrypt(encrypted)
 
     return decrypted.decode()
@@ -119,9 +120,11 @@ def handle_client(client_sock):
                     data = file.read()
                     file.close()
 
-                    encrypted_data = encrypt_data(data, session_key)
-
-                    send_packet(client_sock, "DP," + encrypted_data)
+                    if secure:
+                        encrypted_data = encrypt_data(data, session_key)
+                        send_packet(client_sock, "DP," + encrypted_data)
+                    else:
+                        send_packet(client_sock, "DP," + data)
 
                 except Exception:
                     send_packet(client_sock, "EE,4,Cannot read file")
@@ -139,7 +142,12 @@ def handle_client(client_sock):
                     data_parts = data_packet.split(",", 1)
 
                     if data_parts[0] == "DP":
-                        data = decrypt_data(data_parts[1], session_key)
+
+                        if secure:
+                            data = decrypt_data(data_parts[1], session_key)
+                        else:
+                            data = data_parts[1]
+
                         file.write(data)
                         file.close()
 
@@ -153,12 +161,20 @@ def handle_client(client_sock):
 
             elif command_type == "prompt":
                 try:
-                    result = os.system(command)
 
-                    if result == 0:
-                        send_packet(client_sock, "SC,Command executed")
+                    if command.startswith("cd "):
+                        folder = command[3:].strip()
+                        os.chdir(folder)
+
+                        send_packet(client_sock, "SC,Directory changed")
+
                     else:
-                        send_packet(client_sock, "EE,1,Command failed")
+                        result = os.system(command)
+
+                        if result == 0:
+                            send_packet(client_sock, "SC,Command executed")
+                        else:
+                            send_packet(client_sock, "EE,1,Command failed")
 
                 except Exception:
                     send_packet(client_sock, "EE,1,Command failed")
