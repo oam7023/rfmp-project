@@ -5,6 +5,7 @@ RFMP server - Setup Phase.
 import socket
 import threading
 import base64
+import os
 
 import rsa  # pip install rsa
 
@@ -77,7 +78,35 @@ def handle_client(client_sock):
         send_packet(client_sock, "CC")
 
     print("Setup phase finished")
-    # TODO: add the Operation Phase here (CM and DP packets)
+
+    # Operation Phase
+    while True:
+        packet = recv_packet(client_sock)
+
+        if packet == "":
+            break
+
+        parts = packet.split(",", 2)
+        packet_type = parts[0]
+
+        if packet_type == "CM":
+            command_type = parts[1]
+            command = parts[2]
+
+            if command_type == "prompt":
+                try:
+                    result = os.system(command)
+
+                    if result == 0:
+                        send_packet(client_sock, "SC,Command executed")
+                    else:
+                        send_packet(client_sock, "EE,1,Command failed")
+
+                except Exception:
+                    send_packet(client_sock, "EE,1,Command failed")
+
+        else:
+            send_packet(client_sock, "EE,2,Unknown packet")
 
     client_sock.close()
 
