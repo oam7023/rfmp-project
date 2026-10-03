@@ -34,3 +34,58 @@ def encode_bytes(data):
 def decode_bytes(text):
     # turns the text string back into raw bytes
     return base64.b64decode(text.encode())
+
+
+def main():
+    answer = input("Require secure communication? (y/n): ")
+    secure = False
+    if answer == "y":
+        secure = True
+
+    client_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    client_sock.connect((HOST, PORT))
+
+    # 1. Sending the Start-Packet
+    if secure:
+        send_packet(client_sock, "SS,RFMP,v1.0,1")
+    else:
+        send_packet(client_sock, "SS,RFMP,v1.0,0")
+
+    # 2. Confirming the Connection-Packet
+    packet = recv_packet(client_sock)
+    parts = packet.split(",")
+    packet_type = parts[0]
+
+    if packet_type != "CC":
+        print("Unexpected reply, closing")
+        client_sock.close()
+        return
+
+    if secure:
+        server_pub_text = parts[1]
+        server_pub_bytes = decode_bytes(server_pub_text)
+        server_pub = rsa.PublicKey.load_pkcs1(server_pub_bytes)
+
+        client_pub, client_priv = rsa.newkeys(2048)
+        session_key = os.urandom(16)
+
+        enc_session_key = rsa.encrypt(session_key, server_pub)
+        enc_session_key_text = encode_bytes(enc_session_key)
+
+        client_pub_text = encode_bytes(client_pub.save_pkcs1())
+        username = "client1"
+        credentials = username + ":" + client_pub_text
+
+        packet_to_send = "EC,AES," + enc_session_key_text + "," + credentials
+        send_packet(client_sock, packet_to_send)
+
+        print("Secure setup finished")
+    else:
+        print("Unsecured setup finished")
+
+    # TODO: add the Operation Phase here (menu + CM packets)
+
+    client_sock.close()
+
+
+main()
