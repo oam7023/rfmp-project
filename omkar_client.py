@@ -82,7 +82,60 @@ def main():
     else:
         print("Unsecured setup finished")
 
-    # TODO: add the Operation Phase here (menu + CM packets)
+        # Operation Phase
+    while True:
+        print("\n--- RFMP Menu ---")
+        print("1. mkdir")
+        print("2. cd")
+        print("3. rmdir")
+        print("4. del")
+        print("5. ren")
+        print("6. openRead")
+        print("7. openWrite")
+        print("8. exit")
+
+        choice = input("Enter your choice: ")
+
+        if choice == "8":
+            break
+
+        if choice == "1":
+            command = input("Enter folder name: ")
+            packet = "CM,prompt,mkdir " + command
+
+        elif choice == "2":
+            command = input("Enter folder path: ")
+            packet = "CM,prompt,cd " + command
+
+        elif choice == "3":
+            command = input("Enter folder name: ")
+            packet = "CM,prompt,rmdir " + command
+
+        elif choice == "4":
+            command = input("Enter file name: ")
+            packet = "CM,prompt,del " + command
+
+        elif choice == "5":
+            command = input("Enter old name and new name: ")
+            packet = "CM,prompt,ren " + command
+
+        elif choice == "6":
+            filename = input("Enter file name: ")
+            packet = "CM,openRead," + filename
+
+        elif choice == "7":
+            filename = input("Enter file name: ")
+            packet = "CM,openWrite," + filename
+
+        else:
+            print("Invalid choice")
+            continue
+
+        send_packet(client_sock, packet)
+
+        reply = recv_packet(client_sock)
+        print("Server:", reply)
+
 
     client_sock.close()
 
