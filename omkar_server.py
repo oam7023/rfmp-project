@@ -87,4 +87,9 @@ def main():
     server_sock.listen()
     print("Server is listening on port " + str(PORT))
 
+    while True:
+            client_sock, addr = server_sock.accept()
+            thread = threading.Thread(target=handle_client, args=(client_sock,))
+            thread.start()
+
 main()
