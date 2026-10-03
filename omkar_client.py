@@ -35,7 +35,6 @@ def decode_bytes(text):
     # turns the text string back into raw bytes
     return base64.b64decode(text.encode())
 
-
 def main():
     answer = input("Require secure communication? (y/n): ")
     secure = False
@@ -86,6 +85,5 @@ def main():
     # TODO: add the Operation Phase here (menu + CM packets)
 
     client_sock.close()
-
 
 main()
