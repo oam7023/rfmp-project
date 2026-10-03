@@ -25,3 +25,21 @@ def recv_packet(sock):
             break
         text = text + byte.decode()
     return text
+
+def encode_bytes(data):
+    # turns raw bytes (like an RSA key) into a safe text string
+    encoded = base64.b64encode(data)
+    return encoded.decode()
+
+def decode_bytes(text):
+    # turn the text string back into raw bytes
+    return base64.b64decode(text.encode())
+
+
+def main():
+    server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_sock.bind((HOST, PORT))
+    server_sock.listen()
+    print("Server is listening on port " + str(PORT))
+
+main()

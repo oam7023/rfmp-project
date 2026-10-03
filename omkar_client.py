@@ -25,3 +25,12 @@ def recv_packet(sock):
             break
         text = text + byte.decode()
     return text
+
+def encode_bytes(data):
+    # turns raw bytes (like an RSA key) into a safe text string
+    encoded = base64.b64encode(data)
+    return encoded.decode()
+
+def decode_bytes(text):
+    # turns the text string back into raw bytes
+    return base64.b64decode(text.encode())
