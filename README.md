@@ -1,16 +1,16 @@
 # RFMP - Remote File Management Protocol
 
 A simple remote file/folder management protocol built with Python and C
-sockets, for the Sockets with AI course project.
+sockets.
 
 # Team
-- Member 1 - Server core / protocol
-- Member 2 - Security (RSA/AES/Caesar)
-- Member 3 - Client + C client
+- Member 1 - Server/Client setup core
+- Member 2 - Operation phase 
+- Member 3 - C client
 
 # Files
-- `server.py` - RFMP server (multithreaded, self-contained)
-- `client.py` - RFMP Python client (self-contained)
+- `server.py` - RFMP server (multithreaded)
+- `client.py` - RFMP Python client
 - `client.c` - RFMP C client (openRead only, no encryption)
 
 # Setup
