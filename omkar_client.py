@@ -160,6 +160,16 @@ def main():
             data = reply.split(",", 1)[1]
             print("File contents:")
             print(data)
+            
+        elif reply.startswith("EE,"):
+            error_parts = reply.split(",", 2)
+
+            error_code = error_parts[1]
+            error_message = error_parts[2]
+
+            print("Error code:", error_code)
+            print("Error:", error_message)
+
         else:
             print("Server:", reply)
 
