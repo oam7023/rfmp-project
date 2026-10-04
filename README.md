@@ -26,6 +26,6 @@ py client.py
 
 # Status
 - [x] Setup Phase (SS / CC / EC handshake)
-- [ ] Operation Phase (CM commands, openRead/openWrite, DP packets)
-- [ ] Exception packets (EE)
-- [ ] C client
+- [x] Operation Phase (CM commands, openRead/openWrite, DP packets)
+- [x] Exception packets (EE)
+- [x] C client
