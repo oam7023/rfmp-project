@@ -173,37 +173,37 @@ def handle_client(client_sock):
 
                     else:
                         result = subprocess.run(
-                        command,
-                        shell=True,
-                        capture_output=True,
-                        text=True
-                    )
+                            command,
+                            shell=True,
+                            capture_output=True,
+                            text=True
+                        )
 
-                    if result.returncode == 0:
-                        output = result.stdout.strip()
+                        if result.returncode == 0:
+                            output = result.stdout.strip()
 
-                        if output == "":
-                            output = "Command executed successfully"
-                            
-                        output = output.replace("\r", "")
-                        output = output.replace("\n", " | ")
-        
+                            if output == "":
+                                output = "Command executed successfully"
+                                
+                            output = output.replace("\r", "")
+                            output = output.replace("\n", " | ")
+            
 
-                        send_packet(client_sock, "SC," + output)
+                            send_packet(client_sock, "SC," + output)
 
-                    else:
-                        error = result.stderr.strip()
+                        else:
+                            error = result.stderr.strip()
 
-                        if error == "":
-                            error = "Command failed"
+                            if error == "":
+                                error = "Command failed"
 
-                        error = error.replace("\r", "")
-                        error = error.replace("\n", " | ")
+                            error = error.replace("\r", "")
+                            error = error.replace("\n", " | ")
 
-                        send_packet(client_sock, "EE,1," + error)
+                            send_packet(client_sock, "EE,1," + error)
 
                 except Exception:
-                    send_packet(client_sock, "EE,1,Command failed")
+                     send_packet(client_sock, "EE,1,Command failed")
 
         else:
             send_packet(client_sock, "EE,2,Unknown packet")
