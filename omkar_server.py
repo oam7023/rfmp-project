@@ -6,6 +6,7 @@ import socket
 import threading
 import base64
 import os
+import subprocess
 from Crypto.Cipher import AES
 
 import rsa  # pip install rsa
@@ -171,12 +172,35 @@ def handle_client(client_sock):
                         send_packet(client_sock, "SC,Directory changed")
 
                     else:
-                        result = os.system(command)
+                        result = subprocess.run(
+                        command,
+                        shell=True,
+                        capture_output=True,
+                        text=True
+                    )
 
-                        if result == 0:
-                            send_packet(client_sock, "SC,Command executed")
-                        else:
-                            send_packet(client_sock, "EE,1,Command failed")
+                    if result.returncode == 0:
+                        output = result.stdout.strip()
+
+                        if output == "":
+                            output = "Command executed successfully"
+                            
+                        output = output.replace("\r", "")
+                        output = output.replace("\n", " | ")
+        
+
+                        send_packet(client_sock, "SC," + output)
+
+                    else:
+                        error = result.stderr.strip()
+
+                        if error == "":
+                            error = "Command failed"
+
+                        error = error.replace("\r", "")
+                        error = error.replace("\n", " | ")
+
+                        send_packet(client_sock, "EE,1," + error)
 
                 except Exception:
                     send_packet(client_sock, "EE,1,Command failed")
